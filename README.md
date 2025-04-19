@@ -80,6 +80,13 @@ You can use the following variables in your prompts to include file creation dat
    pip install -r requirements.txt
    ```
 
+4. Configure the environment file. 
+   ```bash
+   cp .env.example .env
+   ```
+   - Add an OpenAI key to the new `.env` file.
+
+
 ### Running the Script
 1. Activate the virtual environment (if not already activated):
    ```bash
