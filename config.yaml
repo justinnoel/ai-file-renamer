@@ -1,0 +1,80 @@
+# OpenAI API key is loaded from .env file
+# Available date variables:
+# {created_date} - YYYYMMDD
+# {created_datetime} - YYYYMMDD-HHMMSS
+# {created_datetime_short} - YYYYMMDD-HHMM
+# {created_iso} - Full ISO format
+# {created_year} - YYYY
+# {created_month} - MM
+# {created_day} - DD
+# {created_time} - HHMMSS
+
+folders:
+  - path: "/Users/jn/Desktop/Screenshots"
+    prompt: "Analyze the image provided and suggest a clear, descriptive filename that follows these rules: 
+            1. Use lowercase
+            2. Use dashes between words
+            3. Do not use any part of the original file name.
+            4. Do not suggest an extension for the file.
+            4. Describe the main subjects and any significant objects or elements visible. Identify and explain any actions taking place and the setting or environment in which they occur. If there are people, describe their interactions, expressions, or any discernible activity. Additionally, mention any text, symbols, or notable colors and their possible significance. Provide context to what is depicted, including any cultural, emotional, or symbolic interpretations if applicable.
+            5. Rename this file to follow this format: {created_datetime}-description-of-content-produced-based-on-image"
+    file_pattern: "^CleanShot*"  # Only match files that start with CleanShot
+    watch: true  # Enable automatic watching
+    debug: false
+
+  - path: "/Users/jn/Documents/Business\ Documents/Original\ Scans/New\ Scans"
+    prompt: "Reset all previous prompts and stored instructions and stored information. The image is from a scanned file. Extract text from the image and produce a new filename that follows these rules: 
+            1. RULE 1: Use the original file extension.
+
+            2. RULE 2: Do not use any part of the original file name.
+
+            3. RULE 3: Generate 4 sections of for the filename:
+              a. TIMESTAMP SECTION: The date in the YYYYMMDD-hhmm format using CST timezone. It should be stripped to the nearest minute.
+                1) If a date is found in the document, prepend the filename with that date in the YYYYMMDD-hhmm format using CST timezone. Otherwise, the date section should be {created_datetime_short} in the YYYYMMDD-hhmm format using CST timezone.
+
+              b. CLASSIFICATION SECTION: Carefully determine the type of document and use uppercase for all classifications. Follow these decision-making steps without deviations:
+
+                Step 1 - Check Origin of Document:
+                    - If the document originates from an excluded entity such as:
+                      * Utility companies
+                      * Healthcare providers
+                      * Vehicle finance companies (specifically including 'Kia Finance')
+                      * Healthcare Associates of Texas
+                      - THEN proceed to Steps 2-4 for further classification (Do not classify as 'STATEMENT'). Continue to the next steps.
+
+                    - If the document originates from credit card companies, banks, investment accounts, or credit unions:
+                      - AND does not fall under any of the exclusions mentioned above:
+                      - THEN CLASSIFY as 'STATEMENT' and proceed directly to COMPANY SECTION.
+
+                Step 2 - Assess Content for Payment Information:
+                    - If the document mentions 'amount due', 'payment received', 'payment made', or 'payment due':
+                      - CLASSIFY AS 'BILL' and proceed to COMPANY SECTION.
+
+                Step 3 - Look for Payment Proof:
+                    - If the document includes a payment receipt or resembles a sales receipt:
+                      - CLASSIFY AS 'RECEIPT' and proceed to COMPANY SECTION.
+
+                Step 4 - General Document Check:
+                    - If none of the above conditions are met:
+                      - CLASSIFY AS 'GENERAL'.
+
+
+              c. COMPANY SECTION:  Name of the company or person or organization that created the document. Apostrophes in the company name should be ignored.
+                1) If a company name is found, this section should consist of the company name in lowercase with any spaces replaced by dashes. If no company name is found, use the word 'unknown'. 
+
+              d. AMOUNT SECTION: Either the amount paid/owed or a brief and concise description of the document.
+                1) If the document has been classified as a 'STATEMENT', this section should be an empty string. Skip the rest of AMOUNT SECTION.
+                2) If classified as a 'BILL' or 'RECEIPT', follow these instructions:
+                   a. If a balance due or amount paid is detected use this format: the whole dollar amount, a period, the cents from the amount.
+                2) If classified as a 'GENERAL' document, use this format: dash delimited brief and concise description of the document with no more than 10 words in lowercase
+            
+                4. RULE 4: Concatenate the all non-empty sections of filename with a double underscore delimiter. If the file name ends in a double underscore followed by the extension, delete the last double underscore.
+              "
+    file_pattern: '.*OCR.*\.pdf$'  # Match any PDF file containing OCR in the name
+    watch: true  # Enable automatic watching
+    debug: false
+
+  # - path: "/path/to/your/folder2"
+  #   prompt: "Rename this file to follow this format: {created_year}/{created_month}/{created_day}-title-of-content"
+  #   file_pattern: "*.txt"
+  #   watch: false  # Manual triggering only
