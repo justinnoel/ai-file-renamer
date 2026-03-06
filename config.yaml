@@ -16,8 +16,8 @@ folders:
             2. Use dashes between words
             3. Do not use any part of the original file name.
             4. Do not suggest an extension for the file.
-            4. Describe the main subjects and any significant objects or elements visible. Identify and explain any actions taking place and the setting or environment in which they occur. If there are people, describe their interactions, expressions, or any discernible activity. Additionally, mention any text, symbols, or notable colors and their possible significance. Provide context to what is depicted, including any cultural, emotional, or symbolic interpretations if applicable.
-            5. Rename this file to follow this format: {created_datetime}-description-of-content-produced-based-on-image"
+            5. Describe the main subjects and any significant objects or elements visible. Identify and explain any actions taking place and the setting or environment in which they occur. If there are people, describe their interactions, expressions, or any discernible activity. Additionally, mention any text, symbols, or notable colors and their possible significance. Provide context to what is depicted, including any cultural, emotional, or symbolic interpretations if applicable.
+            6. Rename this file to follow this format: {created_datetime}-description-of-content-produced-based-on-image"
     file_pattern: "^CleanShot*"  # Only match files that start with CleanShot
     watch: true  # Enable automatic watching
     debug: false
