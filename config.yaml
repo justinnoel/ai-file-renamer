@@ -1,4 +1,4 @@
-# OpenAI API key is loaded from .env file
+# Anthropic API key is loaded from .env file
 # Available date variables:
 # {created_date} - YYYYMMDD
 # {created_datetime} - YYYYMMDD-HHMMSS
@@ -67,7 +67,6 @@ folders:
                 Step 4 - General Document Check:
                     - If none of the above conditions are met:
                       - CLASSIFY AS 'GENERAL'.
-
 
               c. COMPANY SECTION:  Name of the company or person or organization that created the document. Apostrophes in the company name should be ignored.
                 1) If a company name is found, this section should consist of the company name in lowercase with any spaces replaced by dashes. If no company name is found, use the word 'unknown'. 

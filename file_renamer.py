@@ -39,7 +39,7 @@ def ensure_dependencies():
         'python-dotenv',
         'pyyaml',
         'watchdog',
-        'openai'
+        'anthropic'
     ]
     
     for package in required_packages:
@@ -61,7 +61,7 @@ import yaml
 import time
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
-import openai
+import anthropic
 from datetime import datetime
 import glob
 from pathlib import Path
@@ -81,10 +81,10 @@ class FileRenamer:
     def __init__(self, config_path='config.yaml'):
         self.config = self._load_config(config_path)
         # Load API key from environment variable
-        api_key = os.getenv('OPENAI_API_KEY')
+        api_key = os.getenv('ANTHROPIC_API_KEY')
         if not api_key:
-            raise ValueError("OPENAI_API_KEY environment variable is not set. Please set it in your .env file.")
-        self.openai_client = openai.OpenAI(api_key=api_key)
+            raise ValueError("ANTHROPIC_API_KEY environment variable is not set. Please set it in your .env file.")
+        self.anthropic_client = anthropic.Anthropic(api_key=api_key)
         self.observers = []
         self.temp_dir = tempfile.mkdtemp(prefix='file_renamer_')
 
@@ -216,7 +216,7 @@ class FileRenamer:
             file_ext = os.path.splitext(file_name)[1].lower()
 
             if folder_config.get('debug', False):
-                logger.info("\n=== OpenAI Analysis Debug Info ===")
+                logger.info("\n=== Claude Analysis Debug Info ===")
                 logger.info(f"Analyzing file: {file_name}")
 
             # Process the image/PDF
@@ -260,10 +260,7 @@ class FileRenamer:
                 created_time=created_dates['time']
             )
 
-            messages = [
-                {
-                    "role": "system",
-                    "content": """You are a file naming assistant. Analyze the document and return a JSON object with{} properties:
+            system_prompt = """You are a file naming assistant. Analyze the document and return a JSON object with{} properties:
                     {}'filename': The new filename following the specified rules{}
                     Example format: {{"filename": "YYYYMMDD-HHMM__TYPE__COMPANY__AMOUNT.ext"{}}}""".format(
                         " two" if folder_config.get('debug', False) else " one",
@@ -271,38 +268,41 @@ class FileRenamer:
                         "" if folder_config.get('debug', False) else "",
                         ",\n                    'analysis': \"Found date XX/XX/XX, classified as STATEMENT...\"" if folder_config.get('debug', False) else "",
                     )
-                },
+
+            messages = [
                 {
                     "role": "user",
                     "content": [
                         {
-                            "type": "text",
-                            "text": formatted_prompt
+                            "type": "image",
+                            "source": {
+                                "type": "base64",
+                                "media_type": "image/jpeg",
+                                "data": image_data
+                            }
                         },
                         {
-                            "type": "image_url",
-                            "image_url": {
-                                "url": f"data:image/jpeg;base64,{image_data}"
-                            }
+                            "type": "text",
+                            "text": formatted_prompt
                         }
                     ]
                 }
             ]
 
             if folder_config.get('debug', False):
-                logger.info("Sending request to OpenAI...")
+                logger.info("Sending request to Claude...")
 
-            response = self.openai_client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=messages,
+            response = self.anthropic_client.messages.create(
+                model="claude-opus-4-6",
                 max_tokens=1000,
-                temperature=0.7
+                system=system_prompt,
+                messages=messages
             )
 
             # Parse the JSON response
             try:
                 import json
-                response_text = response.choices[0].message.content.strip()
+                response_text = response.content[0].text.strip()
                 
                 # Try to fix common JSON issues
                 if response_text.startswith('```json'):
@@ -346,19 +346,19 @@ class FileRenamer:
 
                 if folder_config.get('debug', False):
                     logger.info(f"Final filename with extension: {new_name}")
-                    logger.info("=== End OpenAI Analysis ===\n")
+                    logger.info("=== End Claude Analysis ===\n")
 
                 return new_name
 
             except json.JSONDecodeError as e:
                 if folder_config.get('debug', False):
-                    logger.error(f"Failed to parse OpenAI response as JSON: {response.choices[0].message.content}")
+                    logger.error(f"Failed to parse Claude response as JSON: {response.content[0].text}")
                     logger.error(f"JSON Error: {e}")
                 return None
 
         except Exception as e:
             if folder_config.get('debug', False):
-                logger.error(f"Error getting new filename from OpenAI: {e}")
+                logger.error(f"Error getting new filename from Claude: {e}")
             return None
 
     def matches_pattern(self, filename, pattern):
@@ -370,7 +370,7 @@ class FileRenamer:
             return False
 
     def rename_file(self, file_path, folder_config):
-        """Rename a single file using OpenAI suggestions."""
+        """Rename a single file using Claude suggestions."""
         try:
             if folder_config.get('debug', False):
                 logger.info(f"\n\n\n\n=== Starting File Rename Process ===")
