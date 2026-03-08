@@ -42,6 +42,16 @@ folders:
                       * Healthcare Associates of Texas
                       - THEN proceed to Steps 2-4 for further classification (Do not classify as 'STATEMENT'). Continue to the next steps.
 
+                    - If the document originates from excluded entities (e.g., utility companies, healthcare providers, vehicle finance companies):
+                      - THEN Exclude from being classified as 'TAXES' and proceed to Steps 2-4 for further classification
+
+                    - Classify as 'TAXES' ONLY if the document contains explicit tax forms or designations, such as:
+                      * IRS forms like '1040', '1099', 'W-2', '1095', 'Tax Year', 'tax statement', 'SUPPLEMENTAL TAX FORM'.
+                      * Explicit statements regarding tax obligations or refunds.
+                      * Notifications about taxable income, deductions, or credits related to federal or state taxes.
+                      * Avoid classification for general healthcare or prescription receipts, even if they include financial information, unless they are directly linked to tax filings.
+                      * Strictly rely on direct tax-related language and forms for classification as 'TAXES'. Any document from healthcare providers or containing financial elements but not explicitly tied to tax-specific language should not qualify.
+
                     - If the document originates from credit card companies, banks, investment accounts, or credit unions:
                       - AND does not fall under any of the exclusions mentioned above:
                       - THEN CLASSIFY as 'STATEMENT' and proceed directly to COMPANY SECTION.
@@ -66,11 +76,18 @@ folders:
                 1) If the document has been classified as a 'STATEMENT', this section should be an empty string. Skip the rest of AMOUNT SECTION.
                 2) If classified as a 'BILL' or 'RECEIPT', follow these instructions:
                    a. If a balance due or amount paid is detected use this format: the whole dollar amount, a period, the cents from the amount.
-                2) If classified as a 'GENERAL' document, use this format: dash delimited brief and concise description of the document with no more than 10 words in lowercase
+                3) If classified as a 'GENERAL' document, use this format: dash delimited brief and concise description of the document with no more than 10 words in lowercase.
+                4) For the description, only use three words maximum. So for example, if the description would have been something like, 'receipt-prescriptions-medicineA-medicineB', just make the description 'receipt-prescriptions'
+
+            5. RULE 4: If the document was classified as 'TAXES', then determine the tax year of the document. This may mean that even though the document may have a current date, the actual tax year might be for the previous year. If so, change the TIMESTAMP SECTION to match the associated tax year, not the actual date of the document. 
+              1). For example, even if the document has a date such as March 1st, 2026 or 20260301, but the document indicates it is for the tax year '2025', make the timestamp section just be the tax year of '2025'. 
             
-                4. RULE 4: Concatenate the all non-empty sections of filename with a double underscore delimiter. If the file name ends in a double underscore followed by the extension, delete the last double underscore.
+            5. RULE 5: Concatenate the all non-empty sections of filename with a double underscore delimiter. If the file name ends in a double underscore followed by the extension, delete the last double underscore.
+
+            6. RULE 6: After concatenating the sections, if the intended file name will include '.ext', remove the '.ext'. 
               "
     file_pattern: '.*OCR.*\.pdf$'  # Match any PDF file containing OCR in the name
+    # file_pattern: '^202.*\.pdf$'  # Match any PDF file starting with 202
     watch: true  # Enable automatic watching
     debug: false
 
