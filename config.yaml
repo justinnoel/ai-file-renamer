@@ -46,8 +46,9 @@ folders:
                       - THEN Exclude from being classified as 'TAXES' and proceed to Steps 2-4 for further classification
 
                     - Classify as 'TAXES' ONLY if the document contains explicit tax forms or designations, such as:
-                      * IRS forms like '1040', '1099', 'W-2', '1095', 'Tax Year', 'tax statement', 'SUPPLEMENTAL TAX FORM'.
+                      * IRS forms like '1040', '1099', 'W-2', '1095', '1095-B', 'Tax Year', 'tax statement', 'SUPPLEMENTAL TAX FORM', 'Department of the Treasury', 'Internal Revenue Service', 'United States Treasury', 'GIVING RECEIPT'.
                       * Explicit statements regarding tax obligations or refunds.
+                      * Mentions the total donations for a given year. 
                       * Notifications about taxable income, deductions, or credits related to federal or state taxes.
                       * Avoid classification for general healthcare or prescription receipts, even if they include financial information, unless they are directly linked to tax filings.
                       * Strictly rely on direct tax-related language and forms for classification as 'TAXES'. Any document from healthcare providers or containing financial elements but not explicitly tied to tax-specific language should not qualify.
@@ -86,7 +87,7 @@ folders:
             6. RULE 6: After concatenating the sections, if the intended file name will include '.ext', remove the '.ext'. 
               "
     file_pattern: '.*OCR.*\.pdf$'  # Match any PDF file containing OCR in the name
-    # file_pattern: '^202.*\.pdf$'  # Match any PDF file starting with 202
+    # file_pattern: '^REDO.*\.pdf$'  # Match any PDF file starting with 202
     watch: true  # Enable automatic watching
     debug: false
 
