@@ -1,0 +1,5 @@
+apple-fm-sdk
+pymupdf
+pyyaml
+pyobjc-framework-Vision
+pyobjc-framework-Quartz
